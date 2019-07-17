@@ -1,0 +1,103 @@
+body {
+    padding-top: 70px;
+    padding-bottom: 60px;
+}
+
+form ul {
+    padding-left: 15px;
+}
+
+#header .navbar-brand {
+    margin-right: 20px;
+}
+
+#header .btn {
+    margin-right: 20px;
+}
+
+#footer {
+    background-color: #f8f8f8;
+    border: 1px solid #e7e7e7;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    min-height: 40px;
+    padding-top: 9px;
+}
+
+#footer p {
+    text-align: center;
+}
+
+#friend-list {
+    border: 1px solid #e7e7e7;
+    position: fixed;
+    left: 0;
+    top: 50px;
+    bottom: 40px;
+    width: 20%;
+}
+
+#table {
+    position: fixed;
+    left: 0;
+    top: 50px;
+    bottom: 40px;
+    width: 60%;
+    margin-left: 20%;
+    margin-right: 20%;
+}
+
+.player {
+    text-align: center;
+}
+
+#bottom-player {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+#right-player {
+    position: absolute;
+    right: 0;
+    margin-top: calc((100vh - 170px) / 2);
+}
+
+#top-player {
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+#left-player {
+    position: absolute;
+    left: 0;
+    margin-top: calc((100vh - 170px) / 2);
+}
+
+#chat-box {
+    border: 1px solid #e7e7e7;
+    position: fixed;
+    right: 0;
+    top: 50px;
+    bottom: 40px;
+    width: 20%;
+}
+
+#chat-stream {
+    padding: 15px 15px 60px 15px;
+    word-wrap: break-word;
+    word-break: break-all;
+    overflow-y: scroll;
+    height: 100%;
+}
+
+#chat-input {
+    background-color: white;
+    border-top: 1px solid #e7e7e7;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 10px 15px;
+}

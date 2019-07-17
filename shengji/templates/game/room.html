@@ -1,0 +1,48 @@
+{% extends 'game/_base.html' %}
+{% load static %}
+
+{% block title %}{{ block.super }} | Room{% endblock %}
+
+{% block content %}
+<div id="friend-list">
+</div>
+<div id="table">
+    <div class="player" id="bottom-player">
+        <div>{{ bottom_username }}</div>
+        <button class="btn btn-link disabled">Start</button>
+    </div>
+    <div class="player" id="right-player">
+        <div>{{ right_username }}</div>
+        <button class="btn btn-link disabled">Switch</button>
+    </div>
+    <div class="player" id="top-player">
+        <div>{{ top_username }}</div>
+        <button class="btn btn-link disabled">Switch</button>
+    </div>
+    <div class="player" id="left-player">
+        <div>{{ left_username }}</div>
+        <button class="btn btn-link disabled">Switch</button>
+    </div>
+</div>
+<div id="chat-box">
+    <div id="chat-stream">
+        {% for message in messages %}
+            <p class="chat-message">{{ message }}</p>
+        {% endfor %}
+    </div>
+    <form id="chat-input">
+        <input type="text" name="message" class="form-control"></input>
+    </form>
+</div>
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<script src="https://unpkg.com/react@15/dist/react.min.js"></script>
+<script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+<script src="{% static 'js/reconnecting-websocket.min.js' %}"></script>
+<script src="{% static 'js/chat.js' %}"></script>
+{# <script src="{% static 'js/game.js' %}"></script>#}
+<script type="text/jsx" data-presets="es2015,react" src="{% static 'js/game.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'registration/_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ block.super }} | Sign in{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div id="login" class="col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <p class="panel-title h1">Sign in</p>
+            </div>
+            <form action="" method="post" class="panel-body">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="form-group">
+                    <input type="submit" class="btn btn-primary" value="Sign in">
+                </div>
+                <input type="hidden" name="next" value="{{ next }}">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

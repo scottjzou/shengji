@@ -1,0 +1,9 @@
+{% extends '_base.html' %}
+
+{% block title %}Shēng Jí{% endblock %}
+
+{% block body %}
+<header id="header">{% include 'game/_header.html' %}</header>
+<main id="main">{% block content %}{% endblock %}</main>
+<footer id="footer">{% include 'game/_footer.html' %}</footer>
+{% endblock %}
