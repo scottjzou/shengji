@@ -36,6 +36,9 @@ class Rank(IntEnum):
     SMALL_JOKER = 14
     BIG_JOKER = 15
 
+    def __str__(self):
+        return self.name
+
 
 RANK_EXCLUDE_JOKER = list(Rank)[:-2]
 
@@ -75,36 +78,33 @@ class Card:
         return '[{}\'s card, {} {}, is_in_hand: {}]'.format(
             self.owner, self.suit, self.rank, self.is_in_hand)
 
-JOKER_CARDS = [Card(Rank.SMALL_JOKER, Suit.JOKER), Card(Rank.BIG_JOKER, Suit.JOKER)]
+    def get_joker_cards():
+        JOKER_CARDS = [self.__init__(Rank.SMALL_JOKER, Suit.JOKER), self.__init__(Rank.BIG_JOKER, Suit.JOKER)]
 
 
 # Deck of 52/54 Cards
 class Deck:
-    def __init__(self, with_joker):
-        self.cards = [Card(rank, suit) for rank in RANK_EXCLUDE_JOKER
+    def __init__(self, with_joker, card_class=Card):
+        self.cards = [card_class(rank, suit) for rank in RANK_EXCLUDE_JOKER
                       for suit in SUITS_EXCLUDE_BLANK_JOKER]
         if with_joker:
-            self.cards += JOKER_CARDS
+            self.cards += card_class.get_joker_cards()
+
+    def get_cards(self):
+        return self.cards
 
     def __str__(self):
         return str([str(card) for card in self.cards])
 
 
 # All the cards used in one game
-# class GameDeck:
-#     def __init__(self, cards, suit, owner, is_in_hand):
-#         self.cards = rank
-#         self.suit = suit
-#         self.owner = owner
-#         self.is_in_hand = is_in_hand
+class GameDeck:
+    def __init__(self, cards, num_players):
+        self.cards = cards
+        self.num_players = num_players
 
-#     def play(self):
-#         if self.is_in_hand:
-#             self.is_in_hand = False
-#         else:
-#             raise Exception('{} tried to play the card that is not in hand', self.owner)
-#         return
+    def draw(self):
+        pass
 
-#     def __str__(self):
-#         return '[{}\'s card, {} {}, is_in_hand: {}]'.format(
-# self.owner, self.suit, self.rank, self.is_in_hand)
+    def __str__(self):
+        return str([str(card) for card in self.cards])
