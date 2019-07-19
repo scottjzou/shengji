@@ -36,6 +36,9 @@ class Rank(IntEnum):
     SMALL_JOKER = 14
     BIG_JOKER = 15
 
+    def __str__(self):
+        return self.name
+
 
 RANK_EXCLUDE_JOKER = list(Rank)[:-2]
 
