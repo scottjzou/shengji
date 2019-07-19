@@ -1,4 +1,4 @@
-from enum import Enum, OrderedEnum
+from enum import Enum, IntEnum
 from functools import total_ordering
 
 
@@ -19,7 +19,7 @@ class Suit(Enum):
     JOKER = 5
 
 
-class Rank(OrderedEnum):
+class Rank(IntEnum):
     ACE = 1
     TWO = 2
     THREE = 3
