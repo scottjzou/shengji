@@ -10,23 +10,6 @@ class TrumpStatus(OrderedEnum):
     PLAYED = 1
     TRUMP = 2
 
-class ShengJiRank(OrderedEnum):
-    ACE = 1
-    TWO = 2
-    THREE = 3
-    FOUR = 4
-    FIVE = 5
-    SIX = 6
-    SEVEN = 7
-    EIGHT = 8
-    NINE = 9
-    TEN = 10
-    JACK = 11
-    QUEEN = 12
-    KING = 13
-    DOMINANT = 14
-    SMALL_JOKER = 15
-    BIG_JOKER = 16
 
 class ShengJiCard(Card):
     def __init__(self, rank, suit=Suit.BLANK, owner=FourPlayerEnum.DECK,
@@ -56,3 +39,6 @@ class ShengJiCard(Card):
         if trump_status != 0:
             return trump_status > 0
         return self.compare_rank(other)
+
+    def compare_rank(self, other):
+

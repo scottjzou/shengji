@@ -34,7 +34,8 @@ class Rank(OrderedEnum):
     QUEEN = 12
     KING = 13
     SMALL_JOKER = 14
-    BIG_JOKER = 14
+    BIG_JOKER = 15
+
 
 RANK_EXCLUDE_JOKER = list(Rank)[:-2]
 
