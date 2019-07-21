@@ -1,8 +1,10 @@
+import random
+
 from enum import Enum, IntEnum
 from functools import total_ordering
 
 
-class FourPlayerEnum(Enum):
+class FourPlayerGame(Enum):
     DECK = 0
     PLAYER_1 = 1
     PLAYER_2 = 2
@@ -44,22 +46,22 @@ RANK_EXCLUDE_JOKER = list(Rank)[:-2]
 
 SUITS_EXCLUDE_BLANK_JOKER = list(Suit)[1:-1]
 
+FOUR_PLAYER_TEAM_1 = [FourPlayerGame.PLAYER_1, FourPlayerGame.PLAYER_3]
+FOUR_PLAYER_TEAM_2 = [FourPlayerGame.PLAYER_2, FourPlayerGame.PLAYER_4]
+
 
 # One Card
 @total_ordering
 class Card:
-    def __init__(self, rank, suit, owner=FourPlayerEnum.DECK, is_in_hand=False):
+    def __init__(self, rank, suit, owner, is_in_hand=False):
         self.rank = rank
         self.suit = suit
         self.owner = owner
         self.is_in_hand = is_in_hand
 
-    def play(self):
-        if self.is_in_hand:
-            self.is_in_hand = False
-        else:
-            raise Exception(
-                '{} tried to play the card that is not in hand', self.owner)
+    def __str__(self):
+        return '[{}\'s card, {} {}, is_in_hand: {}]'.format(
+            self.owner, self.suit, self.rank, self.is_in_hand)
 
     def __eq__(self, other):
         return ((self.rank, self.suit) == (other.rank, other.suit))
@@ -70,16 +72,24 @@ class Card:
     def __lt__(self, other):
         return ((self.rank, self.suit) < (other.rank, other.suit))
 
+    def get_owner(self, player):
+        self.owner = player
+        self.is_in_hand = True
+
+    def play(self):
+        if self.is_in_hand:
+            self.is_in_hand = False
+        else:
+            raise Exception(
+                '{} tried to play the card that is not in hand', self.owner)
+
     # returns true if this card is larger than the other card's rank
     def compare_rank(self, other):
         return self.rank >= other.rank
 
-    def __str__(self):
-        return '[{}\'s card, {} {}, is_in_hand: {}]'.format(
-            self.owner, self.suit, self.rank, self.is_in_hand)
-
-    def get_joker_cards():
-        JOKER_CARDS = [self.__init__(Rank.SMALL_JOKER, Suit.JOKER), self.__init__(Rank.BIG_JOKER, Suit.JOKER)]
+    @classmethod
+    def get_joker_cards(cls):
+        return [cls(Rank.SMALL_JOKER, Suit.JOKER), cls(Rank.BIG_JOKER, Suit.JOKER)]
 
 
 # Deck of 52/54 Cards
@@ -103,8 +113,40 @@ class GameDeck:
         self.cards = cards
         self.num_players = num_players
 
-    def draw(self):
-        pass
+    def shuffle(self):
+        return random.shuffle()
+
+    def pop(self):
+        return self.cards.pop()
 
     def __str__(self):
         return str([str(card) for card in self.cards])
+
+
+class Player:
+    def __init__(self, name, player, hand_cards):
+        self.name = name
+        self.player = player
+        self.hand_cards = hand_cards
+
+    def draw(self, game_deck):
+        card = game_deck.pop()
+        card.get_owner(self)
+        self.hand_cards.append(card)
+
+    def __str__(self):
+        return '[{}: {}, hand_cards: {}]'.format(
+            self.owner, self.name, self.hand_cards)
+
+
+class Game:
+    def __init__(self, players, deck):
+        self.players = players
+        self.deck = deck
+        self.new_rounds = []
+        self.played_rounds = []
+
+
+class GameSet:
+    def __init__(self):
+        self.games = []

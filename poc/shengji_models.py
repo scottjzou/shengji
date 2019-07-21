@@ -2,7 +2,7 @@ import logging
 
 from enum import IntEnum
 
-from generic_models import Card, Deck, FourPlayerEnum, GameDeck, \
+from generic_models import Card, Deck, FourPlayerGame, Game, GameDeck, Player,\
     RANK_EXCLUDE_JOKER, SUITS_EXCLUDE_BLANK_JOKER, Suit
 
 logging.basicConfig(level=logging.DEBUG)
@@ -38,7 +38,7 @@ class ShengJiRank(IntEnum):
 
 
 class ShengJiCard(Card):
-    def __init__(self, rank, suit=Suit.BLANK, owner=FourPlayerEnum.DECK,
+    def __init__(self, rank, suit=Suit.BLANK, owner=FourPlayerGame.DECK,
                  is_in_hand=False, is_score=False, is_dominant=False, is_trump_suit=False):
         super().__init__(rank, suit, owner, is_in_hand)
         self.is_score = is_score
@@ -122,3 +122,81 @@ class ShengJiGameDeck(GameDeck):
     def __init__(self):
         shengji_cards = 2 * ShengJiDeck().get_cards()
         super().__init__(shengji_cards, 4)
+        self.kitty_size = 8
+
+    def is_drawable(self):
+        return len(self.cards) > self.kitty_size
+
+STANDARD_SHENG_JI_GAME_DECK = ShengJiGameDeck()
+
+
+class ShengJiPlayer(Player):
+    def __init__(self, name, player, hand_cards, dominant_rank=ShengJiRank.TWO):
+        super().__init__(self, name, player, hand_cards)
+        self.dominant_rank = dominant_rank
+
+    def __str__(self):
+        return '[{}: {}, current dominant_rank: {}, hand_cards: {}]'.format(
+            self.owner, self.name, self.dominant_rank, self.hand_cards)
+
+    def get_dominant_rank(self):
+        return self.dominant_rank
+
+    def call_dominant(self, call, cards):
+        if call:
+            return True, cards
+        return False, None
+
+    def draw(self):
+        super().draw()
+
+
+class ShengJiGame(Game):
+    def __init__(self, players, dealer, deck=STANDARD_SHENG_JI_GAME_DECK):
+        super().__init__(players, deck)
+        self.dealer = dealer
+        self.dominant_rank = self.dealer.get_dominant_rank()
+        self.trump_suit = Suit.BLANK
+        self.trump_strength = 0
+
+    def dealer_team(self):
+        if self.dealer in FOUR_PLAYER_TEAM_1:
+            return FOUR_PLAYER_TEAM_1
+        elif self.dealer in FOUR_PLAYER_TEAM_2:
+            return FOUR_PLAYER_TEAM_2
+
+    def validate_trunmp(self, player, cards):
+        if len(cards) < 1 or len(cards) <= self.trump_strength:
+            return False
+        if cards[0].rank != self.dominant_rank \
+            and cards[0].rank != ShengJiRank.BIG_JOKER \
+                and cards[0].rank != ShengJiRank.SMALL_JOKER:
+            return False
+        if len(cards) == 1:
+            return True
+        elif len(cards) == 2:
+            if cards[0] != cards[1]:
+                raise Exception(
+                    '{} tried to call trump with two different card {}, {} ', player, cards[0], cards[1])
+            return True
+        return False
+
+    def play(self):
+        if len(self.new_rounds) > 0:
+            round = self.new_rounds.pop()
+            round.play()
+            self.played_rounds.append(round)
+            return True
+        return False
+
+    def init(self):
+        while self.deck.is_drawable():
+            for player in self.players:
+                player.draw(self.deck)
+                call_trump, dominant_cards = player.call_trump(False, [])
+                if call_trump and self.validate_trunmp(player, dominant_cards):
+                    self.trump_suit = dominant_cards[0].suit
+                    self.trunp_strength = len(dominant_cards)
+
+
+
