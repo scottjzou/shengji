@@ -3,6 +3,9 @@ import random
 from enum import Enum, IntEnum
 from functools import total_ordering
 
+WINNING = 1
+EQUAL = 0
+LOSING = -1
 
 class FourPlayerGame(Enum):
     DECK = 0
@@ -10,6 +13,10 @@ class FourPlayerGame(Enum):
     PLAYER_2 = 2
     PLAYER_3 = 3
     PLAYER_4 = 4
+
+FOUR_PLAYER_TEAM_1 = [FourPlayerGame.PLAYER_1, FourPlayerGame.PLAYER_3]
+FOUR_PLAYER_TEAM_2 = [FourPlayerGame.PLAYER_2, FourPlayerGame.PLAYER_4]
+ALL_FOUR_PLAYERS = list(FourPlayerGame)[1:]
 
 
 class Suit(Enum):
@@ -19,6 +26,9 @@ class Suit(Enum):
     DIAMONDS = 3
     CLUBS = 4
     JOKER = 5
+
+SUITS_EXCLUDE_BLANK = list(Suit)[1:]
+SUITS_EXCLUDE_BLANK_JOKER = list(Suit)[1:-1]
 
 
 class Rank(IntEnum):
@@ -44,11 +54,6 @@ class Rank(IntEnum):
 
 RANK_EXCLUDE_JOKER = list(Rank)[:-2]
 
-SUITS_EXCLUDE_BLANK_JOKER = list(Suit)[1:-1]
-
-FOUR_PLAYER_TEAM_1 = [FourPlayerGame.PLAYER_1, FourPlayerGame.PLAYER_3]
-FOUR_PLAYER_TEAM_2 = [FourPlayerGame.PLAYER_2, FourPlayerGame.PLAYER_4]
-
 
 # One Card
 @total_ordering
@@ -72,16 +77,12 @@ class Card:
     def __lt__(self, other):
         return ((self.rank, self.suit) < (other.rank, other.suit))
 
+    def __cmp__(self, other):
+        return cmp(self.rank, other.rank)
+
     def get_owner(self, player):
         self.owner = player
         self.is_in_hand = True
-
-    def play(self):
-        if self.is_in_hand:
-            self.is_in_hand = False
-        else:
-            raise Exception(
-                '{} tried to play the card that is not in hand', self.owner)
 
     # returns true if this card is larger than the other card's rank
     def compare_rank(self, other):
@@ -124,7 +125,7 @@ class GameDeck:
 
 
 class Player:
-    def __init__(self, name, player, hand_cards):
+    def __init__(self, name, player, hand_cards=[]):
         self.name = name
         self.player = player
         self.hand_cards = hand_cards
@@ -134,16 +135,36 @@ class Player:
         card.get_owner(self)
         self.hand_cards.append(card)
 
+    def pick_a_card(self):
+        return self.hand_cards.pop()
+
+    def play(self):
+        card = self.pick_a_card()
+        if card.is_in_hand:
+            card.is_in_hand = False
+            return card
+        else:
+            raise Exception(
+                '{} tried to play the card that is not in hand', self.name)
+        return None
+
     def __str__(self):
         return '[{}: {}, hand_cards: {}]'.format(
             self.owner, self.name, self.hand_cards)
+
+
+class Round:
+    def __init__(self, game, id, players_in_order):
+        self.game = game
+        self.id = id
+        self.players_in_order = players_in_order
 
 
 class Game:
     def __init__(self, players, deck):
         self.players = players
         self.deck = deck
-        self.new_rounds = []
+        self.new_rounds = len(deck.cards) / len(players) * [Round]
         self.played_rounds = []
 
 
