@@ -7,6 +7,7 @@ WINNING = 1
 EQUAL = 0
 LOSING = -1
 
+
 class FourPlayerGame(Enum):
     DECK = 0
     PLAYER_1 = 1
@@ -32,7 +33,7 @@ SUITS_EXCLUDE_BLANK_JOKER = list(Suit)[1:-1]
 
 
 class Rank(IntEnum):
-    ACE = 1
+
     TWO = 2
     THREE = 3
     FOUR = 4
@@ -45,12 +46,12 @@ class Rank(IntEnum):
     JACK = 11
     QUEEN = 12
     KING = 13
-    SMALL_JOKER = 14
-    BIG_JOKER = 15
+    ACE = 14
+    SMALL_JOKER = 15
+    BIG_JOKER = 16
 
     def __str__(self):
         return self.name
-
 
 RANK_EXCLUDE_JOKER = list(Rank)[:-2]
 

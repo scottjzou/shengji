@@ -1,18 +1,19 @@
 import logging
 
+from collection import OrderedDict
+
 from enum import IntEnum
 
 from functools import total_ordering
 
 from generic_models import ALL_FOUR_PLAYERS, Card, Deck, EQUAL, FOUR_PLAYER_TEAM_1, FOUR_PLAYER_TEAM_2, \
     FourPlayerGame, Game, GameDeck, LOSING, Player,\
-    RANK_EXCLUDE_JOKER, Round, SUITS_EXCLUDE_BLANK, SUITS_EXCLUDE_BLANK_JOKER, Suit, WINNING
+    Round, SUITS_EXCLUDE_BLANK, SUITS_EXCLUDE_BLANK_JOKER, Suit, WINNING
 
 logging.basicConfig(level=logging.DEBUG)
 
 
 class ShengJiRank(IntEnum):
-    ACE = 1
     TWO = 2
     THREE = 3
     FOUR = 4
@@ -25,14 +26,16 @@ class ShengJiRank(IntEnum):
     JACK = 11
     QUEEN = 12
     KING = 13
-    DOMINANT = 14
-    TRUNP_DOMINANT = 15
-    SMALL_JOKER = 16
-    BIG_JOKER = 17
+    ACE = 14
+    DOMINANT = 15
+    TRUMP_DOMINANT = 16
+    SMALL_JOKER = 17
+    BIG_JOKER = 18
 
     def __str__(self):
         return self.name
 
+SHENG_JI_RANK_EXCLUDE_JOKER = list(ShengJiRank)[:13]
 SHENG_JI_SCORE_RANKS = {ShengJiRank.FIVE: 5, ShengJiRank.TEN: 10, ShengJiRank.KING: 10}
 
 SHENG_JI_PLAYER_SIZE = 4
@@ -40,14 +43,14 @@ SHENG_JI_PLAYER_SIZE = 4
 
 @total_ordering
 class ShengJiCard(Card):
-    def __init__(self, rank, actual_rank, suit=Suit.BLANK, owner=FourPlayerGame.DECK,
+    def __init__(self, rank, suit=Suit.BLANK, actual_rank=None, owner=FourPlayerGame.DECK,
                  is_in_hand=False):
         super().__init__(rank, suit, owner, is_in_hand)
         if self.rank in SHENG_JI_SCORE_RANKS.keys():
             self.score = SHENG_JI_SCORE_RANKS[self.rank]
         else:
             self.score = 0
-        self.actual_rank = self.rank
+        self.actual_rank = actual_rank if actual_rank is not None else rank
 
     def __eq__(self, other):
         return ((self.rank, self.suit) == (other.rank, other.suit))
@@ -65,31 +68,42 @@ class ShengJiCard(Card):
         return ('[{}\'s card, {} {}, is_in_hand: {}, score: {}, actual_rank: {}]').format(
             self.owner, self.suit, self.rank, self.is_in_hand, self.score, self.actual_rank)
 
-    def set_trump(self, is_trump_suit):
-        self.is_trump_suit = is_trump_suit
-        self.is_trump = True if self.is_trump_suit else False
-        if self.is_dominant:
-            self.is_trump = True
-            if self.is_trump_suit:
-                self.actual_rank = ShengJiRank.TRUNP_DOMINANT
-            else:
-                self.actual_rank = ShengJiRank.DOMINANT
+    # def set_trump(self, is_trump_suit):
+    #     self.is_trump_suit = is_trump_suit
+    #     self.is_trump = True if self.is_trump_suit else False
+    #     if self.is_dominant:
+    #         self.is_trump = True
+    #         if self.is_trump_suit:
+    #             self.actual_rank = ShengJiRank.TRUMP_DOMINANT
+    #         else:
+    #             self.actual_rank = ShengJiRank.DOMINANT
 
     @classmethod
     def get_joker_cards(cls):
         return [
-            cls(ShengJiRank.SMALL_JOKER, Suit.JOKER, is_trump_suit=True),
-            cls(ShengJiRank.BIG_JOKER, Suit.JOKER, is_trump_suit=True)
+            cls(ShengJiRank.SMALL_JOKER, Suit.JOKER),
+            cls(ShengJiRank.BIG_JOKER, Suit.JOKER)
         ]
 
     @classmethod
     def get_dominant_cards(cls, dominant_rank):
         return [cls(dominant_rank, suit, actual_rank=ShengJiRank.DOMINANT) for suit in SUITS_EXCLUDE_BLANK_JOKER]
 
+    @staticmethod
+    # validate if all suits in play cards is the same:
+    def validate_cards_suit(cards):
+        cards = cardss[0]
+        play_suit = play_card.suit
+        for card in play_cards[1:]:
+            if card.suit != play_suit:
+                return False
+        return True
+
 
 class ShengJiDeck(Deck):
     def __init__(self, dominant_rank=ShengJiRank.TWO):
-        rank_exclude_dominant = RANK_EXCLUDE_JOKER
+        rank_exclude_dominant = SHENG_JI_RANK_EXCLUDE_JOKER
+        rank_exclude_dominant.remove(dominant_rank)
         self.cards = [ShengJiCard(rank, suit) for rank in rank_exclude_dominant
                       for suit in SUITS_EXCLUDE_BLANK_JOKER]
         self.cards += ShengJiCard.get_joker_cards()
@@ -112,7 +126,7 @@ class ShengJiPlayer(Player):
         self.dominant_rank = dominant_rank
         self.hand_cards = {}
         for suit in SUITS_EXCLUDE_BLANK:
-            self.hand_cards = {}
+            self.hand_cards[suit] = []
 
     def draw(self, game_deck):
         card = game_deck.pop()
@@ -126,10 +140,21 @@ class ShengJiPlayer(Player):
     def get_dominant_rank(self):
         return self.dominant_rank
 
-    def call_dominant(self, call, cards):
-        if call:
-            return True, cards
-        return False, None
+    def call_trump(self, cards, trump_strength, dominant_rank):
+        if not len(cards) in [1, 2]:
+            return False
+        if cards[0] != cards[1]:
+            return False
+        if cards.suit = suit.JOKER and len(cards) == 2:
+            return True
+
+        if len(cards) > trump_strength:
+            if len(cards) == 2 and (not cards[0] == cards[1]):
+                return False
+
+                if cards[0].rank == dominant_rank or
+                return True
+        return False
 
     def pick_cards(self, round_suit):
         # place holder func
@@ -223,10 +248,11 @@ class ShengJiGame(Game):
         while self.deck.is_drawable():
             for player in self.players:
                 player.draw(self.deck)
-                call_trump, dominant_cards = player.call_trump(False, [])
-                if call_trump and self.validate_trump(player, dominant_cards):
-                    self.trump_suit = dominant_cards[0].suit
-                    self.trunp_strength = len(dominant_cards)
+                cards = player.pick_cards(Suit.BLANK)
+                call_trump = player.call_trump(cards, self.trump_strength, self.dominant_rank)
+                if call_trump:
+                    self.trump_suit = cards[0].suit
+                    self.trump_strength = len(cards)
 
     def is_trump(self, card):
         return card.suit == self.trump_suit
@@ -236,12 +262,8 @@ class ShengJiGame(Game):
         if len(play_cards) < 1:
             raise Exception('Cannot played less than one card')
         elif len(play_cards) > 1:
-            # validate if all suits in play cards is the same:
-            play_card = play_cards[0]
-            play_suit = play_card.suit
-            for card in play_cards[1:]:
-                if card.suit != play_suit:
-                    return LOSING
+            if not validate_cards_suit(play_cards):
+                return LOSING
         play_card = play_cards[0]
         winner_card = winner_cards[0]
 
