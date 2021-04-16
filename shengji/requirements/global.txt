@@ -4,33 +4,68 @@
 #
 #    pip-compile --output-file requirements/global.txt requirements/global.in
 #
-appdirs==1.4.3            # via setuptools
-asgiref==1.0.1            # via channels, daphne
-attrs==16.3.0             # via automat
-autobahn==0.18.0          # via daphne
-automat==0.5.0            # via twisted
+asgiref==1.0.1
+    # via
+    #   channels
+    #   daphne
+attrs==16.3.0
+    # via automat
+autobahn==0.18.0
+    # via daphne
+automat==0.5.0
+    # via twisted
 channels==1.1.1
-constantly==15.1.0        # via twisted
-daphne==1.1.0             # via channels
+    # via -r global.in
+constantly==15.1.0
+    # via twisted
+daphne==1.1.0
+    # via channels
 dj-database-url==0.4.2
+    # via -r global.in
 django-admin-decorators==0.1
+    # via -r global.in
 django-crispy-forms==1.6.1
-django-debug-toolbar==1.7
+    # via -r global.in
+django-debug-toolbar==1.11.1
+    # via -r global.in
 django-dotenv==1.4.1
+    # via -r global.in
 django-extensions==1.7.7
+    # via -r global.in
 django-logentry-admin==1.0.2
+    # via -r global.in
 django-registration==2.2
+    # via -r global.in
 django-reversion==2.0.8
-django==1.10.6
-incremental==16.10.1      # via twisted
-packaging==16.8           # via setuptools
-pyparsing==2.2.0          # via packaging
+    # via -r global.in
+django==1.11.29
+    # via
+    #   -r global.in
+    #   channels
+    #   django-debug-toolbar
+    #   django-logentry-admin
+    #   django-reversion
+incremental==16.10.1
+    # via twisted
 pytz==2016.10
-six==1.10.0               # via asgiref, autobahn, automat, django-extensions, packaging, setuptools, txaio
-sqlparse==0.2.3           # via django-debug-toolbar
-twisted==17.1.0           # via daphne
-txaio==2.6.1              # via autobahn
-zope.interface==4.3.3     # via twisted
+    # via
+    #   -r global.in
+    #   django
+six==1.10.0
+    # via
+    #   asgiref
+    #   autobahn
+    #   automat
+    #   django-extensions
+    #   txaio
+sqlparse==0.2.3
+    # via django-debug-toolbar
+twisted==17.1.0
+    # via daphne
+txaio==2.6.1
+    # via autobahn
+zope.interface==4.3.3
+    # via twisted
 
 # The following packages are considered to be unsafe in a requirements file:
-# setuptools                # via zope.interface
+# setuptools
